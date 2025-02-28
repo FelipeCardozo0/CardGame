@@ -13,8 +13,8 @@ public class CardTable implements Table<Card, CardPlayer> {
      * The table starts with empty places and the current place set to 0.
      */
     public CardTable() {
-        places = new CardSet[NUMBER_OF_PLACES];
-        for (int i = 0; i < NUMBER_OF_PLACES; i++) {
+        places = new CardSet[Table.NUMBER_OF_PLACES];
+        for (int i = 0; i < Table.NUMBER_OF_PLACES; i++) {
             places[i] = new CardSet();
         }
         current_place = 0;
@@ -27,8 +27,8 @@ public class CardTable implements Table<Card, CardPlayer> {
      */
     @Override
     public int[] getPlaces() {
-        int[] placeIdentifiers = new int[NUMBER_OF_PLACES];
-        for (int i = 0; i < NUMBER_OF_PLACES; i++) {
+        int[] placeIdentifiers = new int[Table.NUMBER_OF_PLACES];
+        for (int i = 0; i < Table.NUMBER_OF_PLACES; i++) {
             Card topCard = places[i].getTopCard();
             placeIdentifiers[i] = (topCard != null) ? topCard.identifier : -1;
         }
@@ -56,7 +56,7 @@ public class CardTable implements Table<Card, CardPlayer> {
 
         // Check for matches in other places
         boolean matched = false;
-        for (int i = 0; i < NUMBER_OF_PLACES; i++) {
+        for (int i = 0; i < Table.NUMBER_OF_PLACES; i++) {
             if (i != current_place) {
                 Card topCard = places[i].getTopCard();
                 if (topCard != null && topCard.getRank() == playedCard.getRank()) {
@@ -76,7 +76,7 @@ public class CardTable implements Table<Card, CardPlayer> {
         // If no match was found, leave the card on the table
         if (!matched) {
             // Move to the next place for the next turn
-            current_place = (current_place + 1) % NUMBER_OF_PLACES;
+            current_place = (current_place + 1) % Table.NUMBER_OF_PLACES;
         } else {
             // Remove the played card from the current place (since it was matched)
             places[current_place].removeTopCard();
@@ -84,15 +84,5 @@ public class CardTable implements Table<Card, CardPlayer> {
 
         // End the player's turn
         player.setTurn(false);
-    }
-
-    /**
-     * Returns the player's bank of matched cards.
-     * This method is used internally to add matched cards to the player's bank.
-     *
-     * @return The CardSet representing the player's bank.
-     */
-    private CardSet getBank(CardPlayer player) {
-        return player.getBank();
     }
 }
