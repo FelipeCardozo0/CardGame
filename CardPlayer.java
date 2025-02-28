@@ -1,88 +1,120 @@
 /**
- * A concrete class representing the table in the card game.
- * This class implements the Table<Card, CardPlayer> interface and manages the cards on the table and player turns.
+ * A concrete class representing a player in the card game.
+ * This class extends GeneralPlayer<Card> and manages the player's hand, bank, points, and turn.
  */
-public class CardTable implements Table<Card, CardPlayer> {
+public class CardPlayer extends GeneralPlayer<Card> {
 
     // Fields
-    private CardSet[] places;    // Array to hold the cards in each place on the table
-    private int current_place;   // The index of the current place where the next card will be placed
+    private int points;          // The number of points the player has earned
+    private boolean turn;        // Indicates if it is the player's turn
+    private CardSet hand;        // The player's hand of cards
+    private CardSet bank;        // The player's bank of matched cards
 
     /**
-     * Constructor to initialize the CardTable.
-     * The table starts with empty places and the current place set to 0.
+     * Constructor to initialize a CardPlayer with a given name.
+     * The player starts with 0 points, an empty hand, and an empty bank.
+     *
+     * @param name The name of the player.
      */
-    public CardTable() {
-        places = new CardSet[Table.NUMBER_OF_PLACES];
-        for (int i = 0; i < Table.NUMBER_OF_PLACES; i++) {
-            places[i] = new CardSet();
-        }
-        current_place = 0;
+    public CardPlayer(String name) {
+        this.name = name;
+        this.points = 0;
+        this.turn = false;
+        this.hand = new CardSet();
+        this.bank = new CardSet();
     }
 
     /**
-     * Returns the identifiers of the top cards in each place on the table.
+     * Returns the number of points the player has earned.
      *
-     * @return An array of integers representing the identifiers of the top cards in each place.
+     * @return The player's points.
      */
-    @Override
-    public int[] getPlaces() {
-        int[] placeIdentifiers = new int[Table.NUMBER_OF_PLACES];
-        for (int i = 0; i < Table.NUMBER_OF_PLACES; i++) {
-            Card topCard = places[i].getTopCard();
-            placeIdentifiers[i] = (topCard != null) ? topCard.identifier : -1;
-        }
-        return placeIdentifiers;
+    public int getPoints() {
+        return points;
     }
 
     /**
-     * Takes a turn for the given player.
-     * The player plays a card, and the card is added to the current place on the table.
-     * If the card matches the rank of any other card on the table, both cards are added to the player's bank,
-     * and the player earns a point.
+     * Sets the number of points the player has earned.
      *
-     * @param player The player taking the turn.
+     * @param points The new number of points.
+     */
+    public void setPoints(int points) {
+        this.points = points;
+    }
+
+    /**
+     * Returns true if it is the player's turn.
+     *
+     * @return True if it is the player's turn, false otherwise.
+     */
+    public boolean isTurn() {
+        return turn;
+    }
+
+    /**
+     * Sets the player's turn.
+     *
+     * @param turn True to set it as the player's turn, false otherwise.
+     */
+    public void setTurn(boolean turn) {
+        this.turn = turn;
+    }
+
+    /**
+     * Returns the player's hand of cards.
+     *
+     * @return The CardSet representing the player's hand.
+     */
+    public CardSet getHand() {
+        return hand;
+    }
+
+    /**
+     * Adds a card to the player's hand.
+     *
+     * @param card The card to add to the hand.
+     */
+    public void addToHand(Card card) {
+        hand.addCard(card);
+    }
+
+    /**
+     * Returns a string representation of the player's hand.
+     * The string includes the player's name, the number of cards in the hand, and the card identifiers.
+     *
+     * @return A string representation of the player's hand.
+     */
+    public String handToString() {
+        return name + "'s hand (" + hand.getNumCards() + " cards): " + hand.setToString();
+    }
+
+    /**
+     * Returns a string representation of the player's bank.
+     * The string includes the player's name, the number of cards in the bank, and the card identifiers.
+     *
+     * @return A string representation of the player's bank.
+     */
+    public String bankToString() {
+        return name + "'s bank (" + bank.getNumCards() + " cards): " + bank.setToString();
+    }
+
+    /**
+     * Plays a card from the player's hand.
+     * The card is removed from the hand and returned.
+     *
+     * @return The card played by the player.
      */
     @Override
-    public void takeTurn(CardPlayer player) {
-        // Get the card played by the player
-        Card playedCard = player.play();
-        if (playedCard == null) {
-            return; // No card to play
-        }
+    public Card play() {
+        return hand.removeTopCard();
+    }
 
-        // Add the played card to the current place on the table
-        places[current_place].addCard(playedCard);
-
-        // Check for matches in other places
-        boolean matched = false;
-        for (int i = 0; i < Table.NUMBER_OF_PLACES; i++) {
-            if (i != current_place) {
-                Card topCard = places[i].getTopCard();
-                if (topCard != null && topCard.getRank() == playedCard.getRank()) {
-                    // Match found: add both cards to the player's bank and increment points
-                    player.getBank().addCard(topCard);
-                    player.getBank().addCard(playedCard);
-                    player.setPoints(player.getPoints() + 1);
-
-                    // Remove the matched card from the table
-                    places[i].removeTopCard();
-                    matched = true;
-                    break;
-                }
-            }
-        }
-
-        // If no match was found, leave the card on the table
-        if (!matched) {
-            // Move to the next place for the next turn
-            current_place = (current_place + 1) % Table.NUMBER_OF_PLACES;
-        } else {
-            // Remove the played card from the current place (since it was matched)
-            places[current_place].removeTopCard();
-        }
-
-        // End the player's turn
-        player.setTurn(false);
+    /**
+     * Returns the player's bank of matched cards.
+     *
+     * @return The CardSet representing the player's bank.
+     */
+    public CardSet getBank() {
+        return bank;
     }
 }
